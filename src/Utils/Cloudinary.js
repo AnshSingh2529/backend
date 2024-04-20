@@ -19,7 +19,7 @@ cloudinary.config({
        const response = await cloudinary.uploader.upload(localFilePath, {
             resource_type: "auto"
         });
-        //file has been uploaded successfully
+        //file has been uploaded successfully~~~ || ab hame iss file ko remove krne ka code bhi likhna hoga..taki client apni profile avatar change kr paye..
 
         console.log("File is uploaded on coudinary", response.url);
         return response;
@@ -30,4 +30,4 @@ cloudinary.config({
     }
   }
 
-  export {UploadOnCloudinary};
+  export default UploadOnCloudinary;

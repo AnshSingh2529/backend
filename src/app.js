@@ -11,14 +11,19 @@ app.use(express.static('public'));
 app.use(cookieParser());
 
 
-//Routes
 
+//Routes
 import userRouter from './Routes/user.routes.js'
 
 //Routes declaration
+app.use('/api/v1/user', userRouter);            
 
-app.use('/api/v1/user', userRouter);
-
-{/* http://localhost:8000/api/v1/user/register */}     //How our URL form
+    
 
 export default app;
+
+
+{/*COMMENTS SECTION */}
+
+{/*if any user visit to the '/api/v1/user' then it will redirect them to the `userRouter`*/}
+{/* http://localhost:8000/api/v1/user/register */}

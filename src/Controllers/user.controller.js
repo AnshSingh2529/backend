@@ -1,3 +1,5 @@
+{/*this part of the project is for the logic building... */}
+
 import asyncHandler from "../Utils/asyncHandler.js";
 import ApiError from '../Utils/ApiError.js';
 import {User} from '../Models/user.model.js';
@@ -88,4 +90,4 @@ const registerUser = asyncHandler( async (req, res) => {
         
 })
 
-export default registerUser;
+export  {registerUser};

@@ -1,6 +1,10 @@
+{/*this part is for navigating you to the page... */}   
+
 import { Router } from "express";
-import registerUser from "../Controllers/user.controller.js";
+
+import {registerUser} from "../Controllers/user.controller.js";
 import {upload} from '../Middlewares/Multer.middleware.js';
+
 const router = Router();
 
 router.route('/register').post(upload.fields

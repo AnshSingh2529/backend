@@ -3,7 +3,7 @@
 import asyncHandler from "../Utils/asyncHandler.js";
 import ApiError from '../Utils/ApiError.js';
 import {User} from '../Models/user.model.js';
-import UploadOnCloudinary from '../Utils/Cloudinary.js';
+import uploadOnCloudinary from '../Utils/Cloudinary.js';
 import ApiResponse from '../Utils/ApiResponse.js';
 
 
@@ -32,7 +32,7 @@ const registerUser = asyncHandler( async (req, res) => {
         }
 
         // 2nd step
-       const existedUser = User.findOne(
+       const existedUser = await User.findOne(
             {
                 $or: [{ email },{ username }]
             })
@@ -42,7 +42,7 @@ const registerUser = asyncHandler( async (req, res) => {
             throw new ApiError(409, "User already existed !!" )
         }
 
-        // 3rd step
+        // 3rd step 
         const avatarLocalPath = req.files?.avatar[0]?.path;
         const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
@@ -52,8 +52,8 @@ const registerUser = asyncHandler( async (req, res) => {
         }
 
         // 4th step
-        const avatar = await UploadOnCloudinary(avatarLocalPath);
-        const coverImage = await UploadOnCloudinary(coverImageLocalPath);
+        const avatar = await uploadOnCloudinary(avatarLocalPath);
+        const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
         // checking...
         if(!avatar){

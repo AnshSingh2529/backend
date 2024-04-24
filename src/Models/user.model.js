@@ -1,5 +1,4 @@
 import mongoose, { Schema } from 'mongoose';
-import { JsonWebTokenError } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
 
@@ -92,9 +91,6 @@ UserSchema.methods.generateRefreshToken =  function(){
       expiresIn: REFRESH_TOKEN_EXPIRY
     }
   )
-}
-UserSchema.methods.generateRefreshToken =  function(){
-  
 }
 
 export const User = mongoose.model("User", UserSchema);

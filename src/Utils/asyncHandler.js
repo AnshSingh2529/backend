@@ -13,6 +13,6 @@ const asyncHandler = (requestHandler) => {
 
 
 
-export default asyncHandler;
+export {asyncHandler};
 
 {/* This code snippet is primarily designed to handle asynchronous operations in Express.js middleware functions */}

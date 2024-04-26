@@ -54,39 +54,48 @@ const registerUser = asyncHandler( async (req, res) => {
     //console.log(req.files);
 
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    //const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    if(!avatarLocalPath){
+        throw new ApiError(400, "Avatar path is required !!")
+    }
+
+    let avatar, coverImage;
+    try {
+        avatar = await uploadOnCloudinary(avatarLocalPath)
+        if(!avatar){
+            throw new ApiError(400, "Avatar is required")
+        }
+    } catch (error) {
+        throw new ApiError(500, "Avatar upload failed !!")
+    }
 
     let coverImageLocalPath;
     if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
         coverImageLocalPath = req.files.coverImage[0].path
     }
-    
 
-    if (!avatarLocalPath) {
-        throw new ApiError(400, "Avatar path is not defined is required")
+    try {
+        coverImage = await uploadOnCloudinary(coverImageLocalPath);
+    } catch (error) {
+        throw new ApiError(500, "coverImage upload failed !!")
     }
 
-    const avatar = await uploadOnCloudinary(avatarLocalPath)
-    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
-    if (!avatar) {
-        throw new ApiError(400, "Avatar file is required")
-    }
-   
+ 
 
-    const user = await User.create({
+    const newUser = {
         fullname,
         avatar: avatar.url,
         coverImage: coverImage?.url || "",
         email, 
         password,
         username: username.toLowerCase()
-    })
+    }
+
+    const user = await User.create(newUser);
 
     const createdUser = await User.findById(user._id).select(
         "-password -refreshToken"
     )
-
     if (!createdUser) {
         throw new ApiError(500, "Something went wrong while registering the user")
     }

@@ -4,7 +4,7 @@ import { Router } from "express";
 
 import {logoutUser, loginUser, registerUser} from "../Controllers/user.controller.js";
 import {upload} from '../Middlewares/Multer.middleware.js';
-import varifyJWT from '../Middlewares/Auth.middleware.js'
+import {varifyJWT} from '../Middlewares/Auth.middleware.js'
 
 const router = Router();
 

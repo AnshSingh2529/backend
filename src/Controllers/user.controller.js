@@ -3,22 +3,21 @@ import {ApiError} from "../Utils/ApiError.js"
 import { User} from "../Models/user.model.js"
 import {uploadOnCloudinary} from "../Utils/Cloudinary.js"
 import { ApiResponse } from "../Utils/ApiResponse.js";
-import { json } from "express";
 
-const generateAccessAndRefreshTokens = async (userId) => {
+const generateAccessAndRefereshTokens = async(userId) =>{
     try {
+        const user = await User.findById(userId)
+        const accessToken = user.generateAccessToken()
+        const refreshToken = user.generateRefreshToken()
 
-        const userData = await User.findById(userId);    //find the user
-        const accessToken = userData.generateAccessToken();  //generate Tokens
-        const refreshToken = userData.generateRefreshToken();
+        user.refreshToken = refreshToken
+        await user.save({ validateBeforeSave: false })
 
-        userData.refreshToken = refreshToken;          //saved in our database...(Refresh Token !)
-        await userData.save({ValidateBeforeSave : false});
+        return {accessToken, refreshToken}
 
-        return {accessToken, refreshToken};     //return Tokens
 
     } catch (error) {
-        throw new ApiError(500, "Something went wrong !! while genrating refresh and access Token.");
+        throw new ApiError(500, "Something went wrong while generating referesh and access token")
     }
 }
     const registerUser = asyncHandler( async (req, res) => {
@@ -104,62 +103,65 @@ const generateAccessAndRefreshTokens = async (userId) => {
 
     } )
 
-    const loginUser = asyncHandler( async (req, res) => {
-        {/*
-            >take data from req.body
-            >check if User is registered..if(yes) => access otherwise,No access.
-            >User's "email" or "username" && User's "password" to login..
-            >check email or username && password is correct.
-            > access token && refresh token..
-            >send cookie that user had logged in..
-            
-        */}
-                // step 1
-        const {email, username, password} = req.body;
-        // checking
-        if(!(username || email)){
-            throw new ApiError(400, "username or email is required !!");
-        }
-        
-                // step 2
-        const registeredUser = await User.findOne({ $or:[{username}, {email}]});     //Mongodb operators
-        // checking
-        if(!registeredUser){
-            throw new ApiError(404, "you are not Registered !!");
-        }
-
-                // step 3
-        const isPasswordValid = await registeredUser.isPasswordCorrect(password);
-        // checking
-        if(!isPasswordValid){
-            throw new ApiError(401, "Invalid user credentials !!")
-        }
-
-                // step 4
-    const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(registeredUser._id);
+    const loginUser = asyncHandler(async (req, res) =>{
+        // req body -> data
+        // username or email
+        //find the user
+        //password check
+        //access and referesh token
+        //send cookie
     
-    const LoggedInUser = await User.findById(registeredUser._id)
-    .select("-password -refreshToken");
-
-    const options = {            //Only modified from the `server` !!
-        httpOnly:true,
-        secure: true
-    }
-
-    return res
-    .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
-    .json(
-        new ApiResponse(
-            200, 
-            {
-                registeredUser: LoggedInUser, accessToken, refreshToken
-            },
-            "User Loggedin Successfully"
+        const {email, username, password} = req.body
+        console.log(email);
+    
+        // if (!username && !email) {
+        //     throw new ApiError(400, "username or email is required")
+        // }
+        
+        // Here is an alternative of above code based on logic discussed in video:
+        if (!(username || email)) {
+            throw new ApiError(400, "username or email is required")
+            
+        }
+    
+        const user = await User.findOne({
+            $or: [{username}, {email}]
+        })
+    
+        if (!user) {
+            throw new ApiError(404, "User does not exist")
+        }
+    
+       const isPasswordValid = await user.isPasswordCorrect(password)
+    
+       if (!isPasswordValid) {
+        throw new ApiError(401, "Invalid user credentials")
+        }
+    
+       const {accessToken, refreshToken} = await generateAccessAndRefereshTokens(user._id)
+    
+        const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
+    
+        const options = {
+            httpOnly: true,
+            secure: true
+        }
+    
+        return res
+        .status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+            new ApiResponse(
+                200, 
+                {
+                    user: loggedInUser, accessToken, refreshToken
+                },
+                "User logged In Successfully"
+            )
         )
-    )
-})
+    
+    })
     
 
 

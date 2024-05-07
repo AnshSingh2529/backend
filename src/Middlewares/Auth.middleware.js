@@ -19,6 +19,7 @@ export const varifyJWT = asyncHandler( async (req, _, next) => {       //when th
     
         const user = await User.findById(decodedToken?._id)
         .select("-password -refreshToken")
+
     
         if(!user){
             throw new ApiError(401, "Invalid Access Token !!")
